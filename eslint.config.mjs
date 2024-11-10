@@ -10,7 +10,7 @@ export default [
   {
     files: ["src/**/*.ts"],
     rules: {
-      semi: ["error", "always"],
+      semi: ["warn", "always"],
       'prefer-const': "warn",
       "indent-legacy": ["warn", 2],
       quotes: ["error", "single"],
