@@ -1,11 +1,15 @@
-import express from 'express';
-const router = express.Router();
+import {Request, Response, Router} from 'express';
+const router = Router();
 import UsersRepository from '@src/repositories/User';
 
-router.post('/', async (req: express.Request,res: express.Response) => {
-  console.log('teste');
-  const response = await UsersRepository.createuser(req.body);
-  res.status(response.status).send(response.mss);
+router.post('/', async (req: Request,res: Response) => {
+  const {status, mss} = await UsersRepository.createuser(req.body);
+  res.status(status).send(mss);
+});
+
+router.delete('/', async (req: Request, res: Response) => {
+  const {status, mss} = await UsersRepository.deleteUser(req.body);
+  res.status(status).send(mss);
 });
 
 export default router;

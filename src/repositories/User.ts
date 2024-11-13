@@ -1,4 +1,4 @@
-import users from '@src/models/Users';
+import Users from '@src/models/Users';
 import { User, RequestResponse } from '@src/types/';
 
 function userDataValidation(userData: User): boolean{
@@ -28,7 +28,7 @@ const UserRepository = {
     // Email validation
     let invalidEmail = false;
     try {
-      const res = await users.findOne({where: {email: userData.email}});
+      const res = await Users.findOne({where: {email: userData.email}});
       if(res) invalidEmail = true;
     } catch (error) {
       return {mss: 'Error on database access', status: 500};
@@ -38,11 +38,37 @@ const UserRepository = {
     
     // Create user
     try {
-      await users.create(userData);
+      await Users.create(userData);
     } catch (error) {
       return {mss: 'Error on database access', status: 500};
     }
     
+    return {mss:'', status:200};
+  },
+
+  /**
+   * Delete an user given email
+   * @param params request params
+   */
+  async deleteUser(params: {userData: {email: string}}): Promise<RequestResponse> {
+    const { email } = params.userData;
+    let emailExists;
+
+    // Email validation
+    if (!email || email === '') return {mss: 'Invalid Data', status: 405};
+    try {
+      const res = await Users.findOne({where: {email: email}});
+      if(res) emailExists = true;
+    } catch (error) {
+      return {mss: 'Error on database access', status: 500};
+    }
+    if (!emailExists) return {mss: 'Account do not exist', status: 405};
+
+    try {
+      Users.destroy({where:{email}});
+    } catch (error) {
+      return {mss: 'Error on database access', status: 500};
+    }
     return {mss:'', status:200};
   }
 };
