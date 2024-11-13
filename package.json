@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint",
+    "db_terminal": "mysql -h 127.0.0.1 -P 3306 -u root -p",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx nodemon src/server.ts --watch 'src/' -e ts",
     "compile": "npx tsc"

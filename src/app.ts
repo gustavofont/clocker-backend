@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import UserControlle from '@controllers/User';
 import cors from 'cors';
 
 const app = express();
@@ -6,6 +7,8 @@ const app = express();
 app.use(cors());
  
 app.use(express.json());
+
+app.use('/user', UserControlle);
  
 app.use((req: Request, res: Response) => {
   res.send('Hello World');
