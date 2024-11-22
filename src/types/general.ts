@@ -1,4 +1,5 @@
 export type RequestResponse = {
   status: number,
-  mss: string,
+  data?: object,
+  mss?: string,
 }

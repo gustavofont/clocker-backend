@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import UserControlle from '@controllers/User';
+import AuthControlle from '@controllers/Auth';
 import cors from 'cors';
 
 const app = express();
@@ -7,6 +8,8 @@ const app = express();
 app.use(cors());
  
 app.use(express.json());
+
+app.use('/', AuthControlle);
 
 app.use('/user', UserControlle);
  

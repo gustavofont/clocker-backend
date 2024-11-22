@@ -15,6 +15,7 @@ export default [
       "indent-legacy": ["warn", 2],
       quotes: ["error", "single"],
       '@typescript-eslint/no-unused-vars': "warn",
+      "@typescript-eslint/no-explicit-any": 0,
     },
     languageOptions: { globals: globals.node }
   },

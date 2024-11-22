@@ -26,6 +26,7 @@ CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL,
   `token` varchar(500) DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -41,7 +42,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'gustavo','gustavo@test.com',NULL,1,'2024-11-13 21:38:52',NULL);
+INSERT INTO `users` VALUES (1,'gustavo','gustavo@test.com','$2a$08$ad.6JRYHWKLgK6drLg44Je57p0ZyDSQX/wOuZcVtHEhj1/aO8apRW',NULL,1,'2024-11-13 21:38:52',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
