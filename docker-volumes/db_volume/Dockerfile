@@ -12,5 +12,5 @@ ENV MYSQL_PASSWORD=password
 # Expose port 3306 to allow connections to the database
 EXPOSE 3306
 
-# Start the MySQL server when the container is run
+# Start the MySQL server when the container is running
 CMD ["mysqld"]

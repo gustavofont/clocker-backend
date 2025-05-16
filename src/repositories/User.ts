@@ -53,6 +53,10 @@ const UserRepository = {
     return {data: userData, status: 200};
   },
 
+  /**
+   * Get data from who is requesting
+   * @param userId User Id
+   */
   async getOwnUser(params: any): Promise<RequestResponse> {
     if(!params.user) return {mss: 'Invalid Data', status: 405};
 

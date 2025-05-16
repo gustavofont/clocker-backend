@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
-import UserControlle from '@controllers/User';
-import AuthControlle from '@controllers/Auth';
+import UserController from '@controllers/User';
+import AuthController from '@controllers/Auth';
+import ScheduleController from '@controllers/Schedule';
 import cors from 'cors';
 
 const app = express();
@@ -9,9 +10,11 @@ app.use(cors());
  
 app.use(express.json());
 
-app.use('/', AuthControlle);
+app.use('/', AuthController);
 
-app.use('/user', UserControlle);
+app.use('/user', UserController);
+
+app.use('/schedule', ScheduleController);
  
 app.use((req: Request, res: Response) => {
   res.send('Hello World');

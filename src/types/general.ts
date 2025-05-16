@@ -3,3 +3,7 @@ export type RequestResponse = {
   data?: object,
   mss?: string,
 }
+
+export type Filters = {
+  [key: string]: string | number | {[key: string]: string}
+}

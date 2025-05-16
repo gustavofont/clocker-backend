@@ -26,13 +26,14 @@ async function validatePassword(reqPassword: string, dbPassword: string) {
  * @param email payload
  * @returns token
  */
-function generateToken(email: string) {
+function generateToken(userId: number, email: string) {
   const secretKey = jwtSecret?? ''; // Replace with your own secret key
   const options = {
     expiresIn: '1h', // Token expiration time
   };
 
   const payload = {
+    id: userId,
     email
   };
 
@@ -67,7 +68,7 @@ const AuthRepository = {
       return {mss: 'Error on database access', status: 500};
     }
 
-    if(invalidEmail) return {mss: 'Email already in use', status: 500};
+    if(invalidEmail) return {mss: 'Email already in use', status: 405};
 
     // Passwrod validation
     if(userData.password){
@@ -97,7 +98,7 @@ const AuthRepository = {
     // Email validation
     let userData;
     try {
-      userData = await Users.findOne({attributes:['password','email','name'],where:{email}});
+      userData = await Users.findOne({attributes:['id','password','email','name'],where:{email}});
     } catch (error) {
       return {mss: 'Error on database access', status: 500};
     }
@@ -111,7 +112,7 @@ const AuthRepository = {
 
     if(!passwordIsCorrect) return {mss: 'Wrong password', status: 405};
 
-    const token = generateToken(email);
+    const token = generateToken(userData.dataValues.id, email);
 
     return {status: 200, data: {token, user: userData.dataValues}};
   },
