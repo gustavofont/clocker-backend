@@ -1,6 +1,7 @@
 import {Request, Response, Router} from 'express';
 import { checkAuth } from '@src/utils/checkAthorization';
 import SchedulesRespository from '@src/repositories/Schedule';
+import ScheduleRepository from '@src/repositories/Schedule';
 
 const router = Router();
 
@@ -11,6 +12,11 @@ router.get('/all', checkAuth, async (req: Request, res: Response) => {
 
 router.get('/:id', checkAuth, async (req: Request, res: Response) => {
   const {status, mss, data} = await SchedulesRespository.getScheduleById(parseInt(req.params.id), req.body.user.id);
+  res.status(status).send(mss ?? data);
+});
+
+router.post('/', checkAuth, async(req: Request, res: Response) => {
+  const {status, mss, data} = await ScheduleRepository.createNewSchedule(req.body.form, req.body.user.id);
   res.status(status).send(mss ?? data);
 });
 

@@ -1,6 +1,6 @@
 import Schedules from '@src/models/Schedules';
 import { Op } from 'sequelize';
-import { Filters } from '@src/types';
+import { Filters, RequestResponse, ScheduleForm } from '@src/types';
 
 /**
  * Formats filters to be used in a where query
@@ -19,6 +19,26 @@ function formatFilters(filters: Filters) {
     }
   });
   return formattedFilters;
+}
+
+/**
+ * Validates Schedule fields
+ * @param form Schedule data coming from request
+ * @returns RequestResponse
+ */
+function validateField(form: ScheduleForm) {
+  let validated = true;
+  Object.keys(form).forEach((fieldKey) => {
+    const field =form[fieldKey as keyof ScheduleForm];
+    if(field === null || field === undefined) {
+      validated = false;
+    }
+    if(typeof(field) === 'string') {
+      if (field === '')
+        validated = false;
+    }
+  });
+  return validated;
 }
 
 const ScheduleRepository = {
@@ -68,6 +88,26 @@ const ScheduleRepository = {
     if(!schedules) return {mss: 'No schedule not found', status: 404};
 
     return {data: schedules, status: 200};
+  },
+
+  /**
+   * Creates a new schedule
+   * @param form Object with schedule fields
+   * @param usermId Id from user who is requesting 
+   * @returns RequestResponse
+   */
+  async createNewSchedule(form: ScheduleForm, usermId: number) : Promise<RequestResponse> {
+    const validated = validateField(form);
+
+    if(!validated) return {mss: 'Invalid Data', status: 405};
+
+    try {
+      await Schedules.create({...form, user: usermId});
+    } catch (error) {
+      return {mss: 'Error on database access', status: 500};
+    }
+
+    return {mss:'', status:200};
   }
 };
 

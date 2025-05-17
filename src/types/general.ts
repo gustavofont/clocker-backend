@@ -7,3 +7,13 @@ export type RequestResponse = {
 export type Filters = {
   [key: string]: string | number | {[key: string]: string}
 }
+
+export type ScheduleForm = {
+  title: string,
+  description: string,
+  tag: string,
+  notify: boolean,
+  allDay: boolean,
+  startTime: string,
+  endTime: string,
+}
