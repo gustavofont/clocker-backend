@@ -94,16 +94,16 @@ const ScheduleRepository = {
   /**
    * Creates a new schedule
    * @param form Object with schedule fields
-   * @param usermId Id from user who is requesting 
+   * @param userId Id from user who is requesting 
    * @returns RequestResponse
    */
-  async createNewSchedule(form: ScheduleForm, usermId: number) : Promise<RequestResponse> {
+  async createNewSchedule(form: ScheduleForm, userId: number) : Promise<RequestResponse> {
     const validated = validateField(form);
 
     if(!validated) return {mss: 'Invalid Data', status: 405};
 
     try {
-      await Schedules.create({...form, user: usermId});
+      await Schedules.create({...form, user: userId});
     } catch (error) {
       return {mss: 'Error on database access', status: 500};
     }
@@ -127,36 +127,48 @@ const ScheduleRepository = {
     try {
       response = await sequelize.query(
         `
-        WITH RECURSIVE date_range AS (
-            SELECT DATE('${rangeStart}') AS schedule_date
-            UNION ALL
-            SELECT DATE_ADD(schedule_date, INTERVAL 1 DAY)
-            FROM date_range
-            WHERE schedule_date < DATE('${rangeEnd}')
+        WITH RECURSIVE seq AS (
+          SELECT 0 AS n
+          UNION ALL
+          SELECT n + 1 FROM seq WHERE n < DATEDIFF('${rangeEnd}', '${rangeStart}')
+        ),
+        dates AS (
+          SELECT DATE_ADD('2025-05-01', INTERVAL n DAY) AS day FROM seq
+        ),
+        user_schedules AS (
+          SELECT
+            title,
+            startTime,
+            DATE(startTime) AS day,
+            endTime,
+            description,
+            tag,
+            notify,
+            allday,
+            user
+          FROM schedules
+          WHERE user = ${userId}
         )
-        SELECT 
-            dr.schedule_date,
-            COALESCE(
-                JSON_ARRAYAGG(
-                    CASE
-                        WHEN s.title IS NOT NULL THEN JSON_OBJECT(
-                            'title', s.title,
-                            'description', s.description,
-                            'startTime', TIME(s.startTime),
-                            'endTime', TIME(s.endTime),
-                            'tag', s.tag,
-                            'notify', s.notify,
-                            'allDay', s.allDay
-                        )
-                    END
-                ),
-                JSON_ARRAY()
-            ) AS schedules
-        FROM date_range dr
-        LEFT JOIN schedules s
-            ON DATE(s.startTime) = dr.schedule_date
-        GROUP BY dr.schedule_date
-        ORDER BY dr.schedule_date;
+        SELECT
+          d.day,
+          COALESCE(
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'title', us.title,
+                'startTime', TIME(us.startTime),
+                'endTime', TIME(us.endTime),
+                'description', us.description,
+                'tag', us.tag,
+                'notify', us.notify,
+                'allDay', us.allDay
+              )
+            ),
+            JSON_ARRAY()
+          ) AS schedules
+        FROM dates d
+        LEFT JOIN user_schedules us ON DATE(us.startTime) = d.day
+        GROUP BY d.day
+        ORDER BY d.day;
         `
       );
     } catch (error) {
@@ -164,7 +176,7 @@ const ScheduleRepository = {
     }
 
     const data = response[0].map((schedule: any) => {
-      if(schedule.schedules[0] === null) {
+      if(schedule.schedules[0].title === null) {
         schedule.schedules = [];
       }
 
