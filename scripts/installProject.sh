@@ -1,7 +1,5 @@
 echo “Setting db container”
 
-pwd
-
 cd docker-volumes/db_volume/
 
 docker build -t clocker-db .
