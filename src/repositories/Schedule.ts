@@ -133,7 +133,7 @@ const ScheduleRepository = {
           SELECT n + 1 FROM seq WHERE n < DATEDIFF('${rangeEnd}', '${rangeStart}')
         ),
         dates AS (
-          SELECT DATE_ADD('2025-05-01', INTERVAL n DAY) AS day FROM seq
+          SELECT DATE_ADD('${rangeStart}', INTERVAL n DAY) AS day FROM seq
         ),
         user_schedules AS (
           SELECT
