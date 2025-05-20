@@ -1,6 +1,7 @@
 import Schedules from '@src/models/Schedules';
 import { Op } from 'sequelize';
-import { Filters, RequestResponse, ScheduleForm } from '@src/types';
+import { CalendarFilters, Filters, RequestResponse, ScheduleForm } from '@src/types';
+import sequelize from '@src/models/DBConnection';
 
 /**
  * Formats filters to be used in a where query
@@ -108,7 +109,71 @@ const ScheduleRepository = {
     }
 
     return {mss:'', status:200};
+  },
+
+  async getCalendar(userId: number, filters: CalendarFilters) {
+    const month = parseInt(filters.month);
+    const year = parseInt(filters.year);
+
+    if(month === undefined || !year) return {mss: 'Invalid Data', status: 405};
+
+    const daysRange = new Date(year, month + 1, 0).getDate(); // last day of month
+
+    const rangeStart = `${year}-${month +1}-01`;
+    const rangeEnd = `${year}-${month +1}-${daysRange}`;
+
+    let response;
+
+    try {
+      response = await sequelize.query(
+        `
+        WITH RECURSIVE date_range AS (
+            SELECT DATE('${rangeStart}') AS schedule_date
+            UNION ALL
+            SELECT DATE_ADD(schedule_date, INTERVAL 1 DAY)
+            FROM date_range
+            WHERE schedule_date < DATE('${rangeEnd}')
+        )
+        SELECT 
+            dr.schedule_date,
+            COALESCE(
+                JSON_ARRAYAGG(
+                    CASE
+                        WHEN s.title IS NOT NULL THEN JSON_OBJECT(
+                            'title', s.title,
+                            'description', s.description,
+                            'startTime', TIME(s.startTime),
+                            'endTime', TIME(s.endTime),
+                            'tag', s.tag,
+                            'notify', s.notify,
+                            'allDay', s.allDay
+                        )
+                    END
+                ),
+                JSON_ARRAY()
+            ) AS schedules
+        FROM date_range dr
+        LEFT JOIN schedules s
+            ON DATE(s.startTime) = dr.schedule_date
+        GROUP BY dr.schedule_date
+        ORDER BY dr.schedule_date;
+        `
+      );
+    } catch (error) {
+      return {mss: 'Error on database access', status: 500};
+    }
+
+    const data = response[0].map((schedule: any) => {
+      if(schedule.schedules[0] === null) {
+        schedule.schedules = [];
+      }
+
+      return schedule;
+    });
+
+    return {data, status: 200};
   }
+
 };
 
 export default ScheduleRepository;

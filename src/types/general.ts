@@ -8,6 +8,11 @@ export type Filters = {
   [key: string]: string | number | {[key: string]: string}
 }
 
+export type CalendarFilters = {
+  month: string,
+   year: string
+}
+
 export type ScheduleForm = {
   title: string,
   description: string,

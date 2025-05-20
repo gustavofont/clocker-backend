@@ -2,11 +2,17 @@ import {Request, Response, Router} from 'express';
 import { checkAuth } from '@src/utils/checkAthorization';
 import SchedulesRespository from '@src/repositories/Schedule';
 import ScheduleRepository from '@src/repositories/Schedule';
+import { CalendarFilters, Filters } from '@src/types';
 
 const router = Router();
 
 router.get('/all', checkAuth, async (req: Request, res: Response) => {
-  const {status, mss, data } = await SchedulesRespository.getAllSchedules(req.body.user.id, req.body.filters);
+  const {status, mss, data } = await SchedulesRespository.getAllSchedules(req.body.user.id, req.query.filters as Filters);
+  res.status(status).send(mss ?? data);
+});
+
+router.get('/calendar', checkAuth, async (req:Request, res: Response) => {
+  const {status, mss, data} = await SchedulesRespository.getCalendar(req.body.user.id, req.query.filters as unknown as CalendarFilters );
   res.status(status).send(mss ?? data);
 });
 
