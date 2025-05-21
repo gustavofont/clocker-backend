@@ -155,8 +155,8 @@ const ScheduleRepository = {
             JSON_ARRAYAGG(
               JSON_OBJECT(
                 'title', us.title,
-                'startTime', TIME(us.startTime),
-                'endTime', TIME(us.endTime),
+                'startTime', us.startTime,
+                'endTime', us.endTime,
                 'description', us.description,
                 'tag', us.tag,
                 'notify', us.notify,
