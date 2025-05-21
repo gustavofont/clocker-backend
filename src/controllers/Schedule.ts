@@ -26,4 +26,9 @@ router.post('/', checkAuth, async(req: Request, res: Response) => {
   res.status(status).send(mss ?? data);
 });
 
+router.delete('/', checkAuth, async(req: Request, res: Response) => {
+  const {status, mss, data} = await ScheduleRepository.deleteSchedule(req.body.user.id, req.query.scheduleId as unknown as number);
+  res.status(status).send(mss ?? data);
+});
+
 export default router;

@@ -184,6 +184,34 @@ const ScheduleRepository = {
     });
 
     return {data, status: 200};
+  },
+
+  /**
+   * Delete schedule by Id
+   * @param userId Id from user who is requesting 
+   * @param scheduleId Schedule Id
+   * @returns RequestResponse
+   */
+  async deleteSchedule(userId: number, scheduleId: number) : Promise<RequestResponse> {
+    if(!userId || !scheduleId) {
+      return {mss: 'Invalid Data', status: 405};
+    }
+
+    let scheduleData: any;
+
+    try {
+      scheduleData = await Schedules.findOne({where: {id: scheduleId}});
+    } catch (error) {
+      return {mss: 'Error on database access', status: 500};
+    }
+    if (scheduleData && scheduleData.user !== userId) return {mss: 'User is not the owner of schedule', status: 405};
+
+    try {
+      Schedules.destroy({where:{id: scheduleId}});
+    } catch (error) {
+      return {mss: 'Error on database access', status: 500};
+    }
+    return {mss:'', status:200};
   }
 
 };
